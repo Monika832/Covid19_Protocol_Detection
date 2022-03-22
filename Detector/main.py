@@ -114,9 +114,9 @@ def processImage(img):
 # cv2.destroyAllWindows()
 
 
-img = cv2.imread("crowd.jpg")
-width,height,channel = img.shape
-img = processImage(img)
-img = cv2.resize(img,(height,width))
-cv2.imshow("img",img)
-cv2.waitKey(0)
+# img = cv2.imread("crowd.jpg")
+# width,height,channel = img.shape
+# img = processImage(img)
+# img = cv2.resize(img,(height,width))
+# cv2.imshow("img",img)
+# cv2.waitKey(0)

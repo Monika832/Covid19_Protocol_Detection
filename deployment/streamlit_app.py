@@ -21,7 +21,7 @@ output_layers = [names_of_layer[i-1] for i in neural_net.getUnconnectedOutLayers
     
 
     
-def obj_detection(my_img):
+def obj_detection(my_img, cv,MIN_DIST):
     
 
 
@@ -29,17 +29,19 @@ def obj_detection(my_img):
     colors = [(255,0,0),(0,255,0)]
     #RGB values selected randomly from 0 to 255 using np.random.uniform()
     # Image loading
-    # newimg = np.array(my_img.convert('RGB')) #Convert the image into RGB  
 
-    # img = cv2.cvtColor(my_img,1) #cvtColor()
+    if cv==0:
+        newimg = np.array(my_img.convert('RGB')) #Convert the image into RGB  
+        img = cv2.cvtColor(newimg,1) #cvtColor()
     # #Store the height, width and number of color channels of the image        
-
-    img = cv2.resize(my_img, None, fx=0.8, fy=0.8)
+    # img = cv2.resize(my_img, None, fx=0.8, fy=0.8)
+    else:
+        img=my_img
     
     height,width,channels = img.shape  
     
 
-    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), False, crop=False)
     neural_net.setInput(blob)
     outs = neural_net.forward(output_layers)
 
@@ -71,8 +73,6 @@ def obj_detection(my_img):
                 centroids.append((center_x, center_y))
                 class_ids.append(class_id)
 
-    # MIN_DIST=150
-    MIN_DIST= st.sidebar.slider("Min Distance", 50,200,100,10)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     colors = [(255,0,0),(0,255,0)]
@@ -117,9 +117,9 @@ def obj_detection(my_img):
     return img
 
 def main():    
-    st.title("Welcome to Streamlit app") #Title displayed in UI using streamlit.title()
+    st.title("Welcome to COVID19 PROTOCOLS DETECTOR") #Title displayed in UI using streamlit.title()
     #Display some text on UI using streamlit.write()
-    st.write("You can view real-time object detection done using YOLO model here. Select one of the following options to proceed:")
+    st.write("You can view real-time whether person is wearing Mask and violating Social Distancing. Select one of the following options to proceed:")
     choice = st.radio("", ("See an illustration", "Choose an image of your choice"))
      #streamlit.radio() inserts a radio button widget 
 
@@ -129,11 +129,16 @@ def main():
 
         if image_file is not None:
             my_img = Image.open(image_file)
+        else:
+            my_img= Image.open("crowd.jpg")
             
     elif choice == "See an illustration":
         #display the example image
-        my_img = cv2.imread("crowd.jpg")
-    img=obj_detection(my_img)
+        my_img = Image.open("crowd.jpg")
+    # MIN_DIST=150
+
+    MIN_DIST= st.sidebar.slider("Min Distance", 50,200,100,10)
+    img=obj_detection(my_img,0,MIN_DIST)
 
     st.set_option('deprecation.showPyplotGlobalUse', False)
     column1, column2 = st.columns(2)
@@ -152,7 +157,21 @@ def main():
         
     plt.imshow(img) #show the figure
     column2.pyplot(use_column_width=True) #actual plotting
-        
+    
+
+
+    st.title("Webcam Live Detection")
+    run = st.checkbox('Run')
+    FRAME_WINDOW = st.image([])
+    camera = cv2.VideoCapture(0)
+
+    while run:
+        _, frame = camera.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        img=obj_detection(frame,1, MIN_DIST)
+        FRAME_WINDOW.image(img)
+    else:
+        st.write('Stopped')
         
 
 if __name__ == '__main__':
