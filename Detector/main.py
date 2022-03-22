@@ -92,31 +92,31 @@ def processImage(img):
     return img
 
 # define a video capture object
-vid = cv2.VideoCapture("video.mp4")
-#vid = cv2.VideoCapture("video2.mp4")
-#vid = cv2.VideoCapture(0)
-frame_width = int(vid.get(3))
-frame_height = int(vid.get(4))
-while(True):
-    start = time.time()
-    ret, frame = vid.read()
-    width,height,channel = frame.shape
-    frame = processImage(frame)
-    frame = cv2.resize(frame,(height,width))
-    end = time.time()
-    cv2.putText(frame,f"{round(1/(end-start),2)}",(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1,1)
-    cv2.imshow('Video', frame)
+# vid = cv2.VideoCapture("video.mp4")
+# #vid = cv2.VideoCapture("video2.mp4")
+# #vid = cv2.VideoCapture(0)
+# frame_width = int(vid.get(3))
+# frame_height = int(vid.get(4))
+# while(True):
+#     start = time.time()
+#     ret, frame = vid.read()
+#     width,height,channel = frame.shape
+#     frame = processImage(frame)
+#     frame = cv2.resize(frame,(height,width))
+#     end = time.time()
+#     cv2.putText(frame,f"{round(1/(end-start),2)}",(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1,1)
+#     cv2.imshow('Video', frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-       break
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#        break
 
-vid.release()
-cv2.destroyAllWindows()
+# vid.release()
+# cv2.destroyAllWindows()
 
 
-# img = cv2.imread("crowd.jpg")
-# width,height,channel = img.shape
-# img = processImage(img)
-# img = cv2.resize(img,(height,width))
-# cv2.imshow("img",img)
-# cv2.waitKey(0)
+img = cv2.imread("crowd.jpg")
+width,height,channel = img.shape
+img = processImage(img)
+img = cv2.resize(img,(height,width))
+cv2.imshow("img",img)
+cv2.waitKey(0)

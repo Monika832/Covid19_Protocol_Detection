@@ -11,7 +11,7 @@ from scipy.spatial import distance as dist
 
 
 
-neural_net = cv2.dnn.readNet("yolov4-custom_best.weights", "yolov4-custom.cfg")
+neural_net = cv2.dnn.readNet("yolov4-tiny-obj_final.weights", "yolov4-tiny-obj.cfg")
 
 
 classes = ["without_mask", "with_mask"]   #Initialize an array to store output labels 
@@ -29,12 +29,12 @@ def obj_detection(my_img):
     colors = [(255,0,0),(0,255,0)]
     #RGB values selected randomly from 0 to 255 using np.random.uniform()
     # Image loading
-    img = np.array(my_img) #Convert the image into RGB  
+    # newimg = np.array(my_img.convert('RGB')) #Convert the image into RGB  
 
-    # img_ = cv2.cvtColor(newImage,1) #cvtColor()
+    # img = cv2.cvtColor(my_img,1) #cvtColor()
     # #Store the height, width and number of color channels of the image        
 
-    img = cv2.resize(img, None, fx=0.4, fy=0.4)
+    img = cv2.resize(my_img, None, fx=0.8, fy=0.8)
     
     height,width,channels = img.shape  
     
@@ -71,15 +71,16 @@ def obj_detection(my_img):
                 centroids.append((center_x, center_y))
                 class_ids.append(class_id)
 
-    MIN_DIST=100
-    # MIN_DIST= st.sidebar.slider("Min Distance", 50,200,100,10)
+    # MIN_DIST=150
+    MIN_DIST= st.sidebar.slider("Min Distance", 50,200,100,10)
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-    colors = [(0,0,255),(0,255,0)]
+    colors = [(255,0,0),(0,255,0)]
     font = cv2.FONT_HERSHEY_PLAIN
 
+
     if len(indexes) > 0:
-        for i in indexes.flatten():
+       for i in indexes.flatten():
             (x, y) = (boxes[i][0], boxes[i][1])
             (w, h) = (boxes[i][2], boxes[i][3])
             r = (confidences[i], (x, y, x + w, y + h), centroids[i])
@@ -103,15 +104,14 @@ def obj_detection(my_img):
             if i in violate:
                 t="Yes"
                 col=(255,0,0)
-            cv2.putText(img, t, (x,y-10),font,0.95, col, 2)
+            cv2.putText(img, t, (x,y-10),font,0.85, col, 2)
+
     for i in range(len(boxes)):
-        if i in indexes:
+       if i in indexes:
             x, y, w, h = boxes[i]
-            print(class_ids[i],type(class_ids[i]))
-            if(class_ids[i]==0):
+            col=(0,255,0)
+            if class_ids[i]==0:
                 col=(255,0,0)
-            else:
-                col=(0,255,0)
             cv2.rectangle(img, (x, y), (x + w, y + h), col, 2)
     cv2.putText(img, "Social Distancing Violations: {}".format(len(violate)), (10, img.shape[0] - 25), font, 0.85, (0, 0, 255), 3)
     return img
@@ -132,7 +132,7 @@ def main():
             
     elif choice == "See an illustration":
         #display the example image
-        my_img = Image.open("crowd.jpg")
+        my_img = cv2.imread("crowd.jpg")
     img=obj_detection(my_img)
 
     st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -148,7 +148,7 @@ def main():
     column2.subheader("Output image") #Title on top of the output image
     st.text("")
     #Plot the output image with detected objects using matplotlib
-    plt.figure(figsize = (15,15))
+    plt.figure(figsize = (20,20))
         
     plt.imshow(img) #show the figure
     column2.pyplot(use_column_width=True) #actual plotting
