@@ -11,7 +11,7 @@ from scipy.spatial import distance as dist
 
 
 
-neural_net = cv2.dnn.readNet("yolov4-tiny-obj_final.weights", "yolov4-tiny-obj.cfg")
+neural_net = cv2.dnn.readNet("yolov4-custom_best.weights", "yolov4-custom.cfg")
 
 
 classes = ["without_mask", "with_mask"]   #Initialize an array to store output labels 
@@ -29,17 +29,17 @@ def obj_detection(my_img):
     colors = [(255,0,0),(0,255,0)]
     #RGB values selected randomly from 0 to 255 using np.random.uniform()
     # Image loading
-    newImage = np.array(my_img.convert('RGB')) #Convert the image into RGB  
+    img = np.array(my_img) #Convert the image into RGB  
 
-    img_ = cv2.cvtColor(newImage,1) #cvtColor()
+    # img_ = cv2.cvtColor(newImage,1) #cvtColor()
     # #Store the height, width and number of color channels of the image        
 
-    # img = cv2.resize(img, None, fx=0.4, fy=0.4)
-    img = cv2.resize(img_, None, fx=0.4, fy=0.4)
+    img = cv2.resize(img, None, fx=0.4, fy=0.4)
+    
     height,width,channels = img.shape  
     
 
-    blob = cv2.dnn.blobFromImage(img, 0.00392, (618, 618), (0, 0, 0), True, crop=False)
+    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
     neural_net.setInput(blob)
     outs = neural_net.forward(output_layers)
 
@@ -129,47 +129,30 @@ def main():
 
         if image_file is not None:
             my_img = Image.open(image_file)
-            img=obj_detection(my_img)
-            st.set_option('deprecation.showPyplotGlobalUse', False)
-            column1, column2 = st.columns(2)
-            #Display subheading on top of input image 
-            column1.subheader("Input image") #streamlit.subheader()
-            st.text("") #streamlit.text() writes preformatted and fixed-width text
-            #Display the input image using matplotlib
-            plt.figure(figsize = (16,16)) 
-            plt.imshow(my_img)
-            column1.pyplot(use_column_width=True)
-            st.text("") #preformatted and fixed-width text
-            column2.subheader("Output image") #Title on top of the output image
-            st.text("")
-            #Plot the output image with detected objects using matplotlib
-            plt.figure(figsize = (15,15))
-            plt.imshow(img) #show the figure
-            column2.pyplot(use_column_width=True) #actual plotting
+            
+    elif choice == "See an illustration":
+        #display the example image
+        my_img = Image.open("crowd.jpg")
+    img=obj_detection(my_img)
 
-        elif choice == "See an illustration":
-            #display the example image
-            my_img = Image.open("crowd.jpg")
-            #perform object detection on the example image 
-            img=obj_detection(my_img)
-
-            st.set_option('deprecation.showPyplotGlobalUse', False)
-            column1, column2 = st.columns(2)
-            #Display subheading on top of input image 
-            column1.subheader("Input image") #streamlit.subheader()
-            st.text("") #streamlit.text() writes preformatted and fixed-width text
-            #Display the input image using matplotlib
-            plt.figure(figsize = (16,16)) 
-            plt.imshow(my_img)
-            column1.pyplot(use_column_width=True)
-            st.text("") #preformatted and fixed-width text
-            column2.subheader("Output image") #Title on top of the output image
-            st.text("")
-            #Plot the output image with detected objects using matplotlib
-            plt.figure(figsize = (15,15))
-            img = cv2.resize(img,(height,width))
-            plt.imshow(img) #show the figure
-            column2.pyplot(use_column_width=True) #actual plotting
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    column1, column2 = st.columns(2)
+    #Display subheading on top of input image 
+    column1.subheader("Input image") #streamlit.subheader()
+    st.text("") #streamlit.text() writes preformatted and fixed-width text
+    #Display the input image using matplotlib
+    plt.figure(figsize = (16,16)) 
+    plt.imshow(my_img)
+    column1.pyplot(use_column_width=True)
+    st.text("") #preformatted and fixed-width text
+    column2.subheader("Output image") #Title on top of the output image
+    st.text("")
+    #Plot the output image with detected objects using matplotlib
+    plt.figure(figsize = (15,15))
+        
+    plt.imshow(img) #show the figure
+    column2.pyplot(use_column_width=True) #actual plotting
+        
         
 
 if __name__ == '__main__':
